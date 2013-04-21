@@ -3,10 +3,10 @@
 	Plugin Name: Better WP Varnish
 	Plugin URI: http://bit51.com/software/better-wp-varnish/
 	Description: A better solution for clearing Varnish cache with WordPress
-	Version: Dev
+	Version: 0.0.2
 	Text Domain: better-wp-varnish
 	Domain Path: /languages
-	Author: Bit51.com
+	Author: Bit51
 	Author URI: http://bit51.com
 	License: GPLv2
 	Copyright 2012 Bit51.com (email: info@bit51.com)
@@ -20,7 +20,7 @@ if ( ! class_exists( 'bit51_bwpv' )) {
 
 	class bit51_bwpv extends Bit51 {
 	
-		public $pluginversion 	= '0001'; //current plugin version
+		public $pluginversion 	= '0002'; //current plugin version
 	
 		//important plugin information
 		public $hook 			= 'better-wp-varnish';
@@ -110,10 +110,8 @@ if ( ! class_exists( 'bit51_bwpv' )) {
 					'meta' => false // array of any of the following options: array( 'html' => '', 'class' => '', 'onclick' => '', target => '', title => '' );
 				) );
 
-				if ( is_page() || is_single() ) {
+				if ( isset( $post->ID ) && $post->ID ) {
 					$id = $post->ID;
-				} elseif ( is_home() ) {
-					$id = 'front';
 				} else {
 					$id = false;
 				}
@@ -193,7 +191,7 @@ if ( ! class_exists( 'bit51_bwpv' )) {
 
 			
 			$url = get_permalink( $postid );
-			$link = str_replace( get_bloginfo( 'wpurl' ), '', $url );
+			$link = str_replace( home_url(), '', $url );
 			
 			$success = $this->purgeVarnish( $link );
 			$success = $this->purgeVarnish( $link . 'page/(.*)' );
