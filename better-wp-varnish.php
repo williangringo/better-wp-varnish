@@ -3,13 +3,13 @@
 	Plugin Name: Better WP Varnish
 	Plugin URI: http://bit51.com/software/better-wp-varnish/
 	Description: A better solution for clearing Varnish cache with WordPress
-	Version: 0.0.2
+	Version: Dev
 	Text Domain: better-wp-varnish
 	Domain Path: /languages
 	Author: Bit51
 	Author URI: http://bit51.com
 	License: GPLv2
-	Copyright 2012 Bit51.com (email: info@bit51.com)
+	Copyright 2012 - 2013 Bit51.com (email: info@bit51.com)
 */
 
 
@@ -20,7 +20,7 @@ if ( ! class_exists( 'bit51_bwpv' )) {
 
 	class bit51_bwpv extends Bit51 {
 	
-		public $pluginversion 	= '0002'; //current plugin version
+		public $pluginversion 	= '0003'; //current plugin version
 	
 		//important plugin information
 		public $hook 			= 'better-wp-varnish';
@@ -48,6 +48,8 @@ if ( ! class_exists( 'bit51_bwpv' )) {
 		function __construct() {
 
 			global $bwpvoptions, $bwpvdata;
+
+			$this->pluginname = __( 'Better WP Varnish', 'better_wp_varnish' );
 		
 			//set path information
 			
@@ -78,17 +80,17 @@ if ( ! class_exists( 'bit51_bwpv' )) {
 
 			if ( $bwpvoptions['enabled'] == 1 ) {
 
-				add_action(	'edit_post', array( &$this, 'purgePost' ), 99 );
-				add_action(	'edit_post', array(  &$this, 'purgeCommon' ), 99 );
-				add_action(	'comment_post', array( &$this, 'purgeComment' ), 99 );
-				add_action(	'edit_comment', array( &$this, 'purgeComment' ), 99 );
-				add_action(	'trashed_comment', array( &$this, 'purgeComment' ), 99 );
-				add_action(	'untrashed_comment', array( &$this, 'purgeComment' ), 99 );
-				add_action(	'deleted_comment', array( &$this, 'purgeComment' ), 99 );
-				add_action(	'deleted_post', array( &$this, 'purgePost' ), 99 );
-				add_action(	'deleted_post', array( &$this, 'purgeCommon' ), 99 );
+				add_action(	'edit_post', array( $this, 'purgePost' ), 99 );
+				add_action(	'edit_post', array(  $this, 'purgeCommon' ), 99 );
+				add_action(	'comment_post', array( $this, 'purgeComment' ), 99 );
+				add_action(	'edit_comment', array( $this, 'purgeComment' ), 99 );
+				add_action(	'trashed_comment', array( $this, 'purgeComment' ), 99 );
+				add_action(	'untrashed_comment', array( $this, 'purgeComment' ), 99 );
+				add_action(	'deleted_comment', array( $this, 'purgeComment' ), 99 );
+				add_action(	'deleted_post', array( $this, 'purgePost' ), 99 );
+				add_action(	'deleted_post', array( $this, 'purgeCommon' ), 99 );
 
-				add_action( 'wp_before_admin_bar_render', array( &$this, 'adminBar' ) );				
+				add_action( 'wp_before_admin_bar_render', array( $this, 'adminBar' ) );				
 
 			}
 
@@ -105,7 +107,7 @@ if ( ! class_exists( 'bit51_bwpv' )) {
 				$wp_admin_bar->add_menu( array(
 					'parent' => false, // use 'false' for a root menu, or pass the ID of the parent menu
 					'id' => 'bwpv', // link ID, defaults to a sanitized title value
-					'title' => __( 'Varnish', $this->hook ), // link title
+					'title' => __( 'Varnish', 'better_wp_varnish' ), // link title
 					'href' => admin_url( 'options-general.php?page=better-wp-varnish' ), // name of file
 					'meta' => false // array of any of the following options: array( 'html' => '', 'class' => '', 'onclick' => '', target => '', title => '' );
 				) );
@@ -120,7 +122,7 @@ if ( ! class_exists( 'bit51_bwpv' )) {
 					$wp_admin_bar->add_menu( array(
 						'parent' => 'bwpv', // use 'false' for a root menu, or pass the ID of the parent menu
 						'id' => 'bwpv-cp', // link ID, defaults to a sanitized title value
-						'title' => __( 'Clear This Page', $this->hook ), // link title
+						'title' => __( 'Clear This Page', 'better_wp_varnish' ), // link title
 						'href' => admin_url( 'options-general.php?page=better-wp-varnish&flush=current&id=' . $id . '&_wpnonce=' . $nonce ), // name of file
 						'meta' => false // array of any of the following options: array( 'html' => '', 'class' => '', 'onclick' => '', target => '', title => '' );
 					) );
@@ -129,7 +131,7 @@ if ( ! class_exists( 'bit51_bwpv' )) {
 				$wp_admin_bar->add_menu( array(
 					'parent' => 'bwpv', // use 'false' for a root menu, or pass the ID of the parent menu
 					'id' => 'bwpv-ca', // link ID, defaults to a sanitized title value
-					'title' => __( 'Clear All', $this->hook ), // link title
+					'title' => __( 'Clear All', 'better_wp_varnish' ), // link title
 					'href' => admin_url( 'options-general.php?page=better-wp-varnish&flush=all&id=' . ( $id === false ? 'opts' : $id ) . '&_wpnonce=' . $nonce ), // name of file
 					'meta' => false // array of any of the following options: array( 'html' => '', 'class' => '', 'onclick' => '', target => '', title => '' );
 				) );
@@ -144,16 +146,14 @@ if ( ! class_exists( 'bit51_bwpv' )) {
 		 * 
 		 **/
 		function purgeAll() {
-
-			$errorHandler = __( 'WordPress Core File Writing ignored.', $this->hook );
 			
 			if ( $this->purgeVarnish( '(.*)' ) == true ) {
 
-				echo '<div id="message" class="updated"><p><strong>' . __( 'Cache Succeddfully Cleared', $this->hook ) . '</strong></p></div>';
+				return true;
 
 			} else {
 
-				echo '<div id="message" class="error"><p>' . __( 'ERROR: Could not clear cache. Contact your server administrator if this error persists.', $this->hook ) . '</p></div>';
+				return false;
 
 			}
 
@@ -172,11 +172,11 @@ if ( ! class_exists( 'bit51_bwpv' )) {
 
 			if ( $success == true ) {
 
-				echo '<div id="message" class="updated"><p><strong>' . __( 'Cache Succeddfully Cleared', $this->hook ) . '</strong></p></div>';
+				return true;
 
 			} else {
 
-				echo '<div id="message" class="error"><p>' . __( 'ERROR: Could not clear cache. Contact your server administrator if this error persists.', $this->hook ) . '</p></div>';
+				return false;
 
 			}
 
@@ -198,11 +198,11 @@ if ( ! class_exists( 'bit51_bwpv' )) {
 
 			if ( $success == true ) {
 
-				echo '<div id="message" class="updated"><p><strong>' . __( 'Cache Succeddfully Cleared', $this->hook ) . '</strong></p></div>';
+				return true;
 
 			} else {
 
-				echo '<div id="message" class="error"><p>' . __( 'ERROR: Could not clear cache. Contact your server administrator if this error persists.', $this->hook ) . '</p></div>';
+				return false;
 
 			}
 
@@ -231,11 +231,11 @@ if ( ! class_exists( 'bit51_bwpv' )) {
 
 			if ( $success == true ) {
 
-				echo '<div id="message" class="updated"><p><strong>' . __( 'Cache Succeddfully Cleared', $this->hook ) . '</strong></p></div>';
+				return true;
 
 			} else {
 
-				echo '<div id="message" class="error"><p>' . __( 'ERROR: Could not clear cache. Contact your server administrator if this error persists.', $this->hook ) . '</p></div>';
+				return false;
 
 			}
 
@@ -259,13 +259,13 @@ if ( ! class_exists( 'bit51_bwpv' )) {
 			$out .= 'Host: ' . $host . PHP_EOL;
 			$out .= 'Connection: Close' . PHP_EOL . PHP_EOL;
 
-			$sock = fsockopen( $bwpvoptions['address'], $bwpvoptions['port'], $errno, $errstr, $bwpvoptions['timeout'] );
+			$sock = @fsockopen( $bwpvoptions['address'], $bwpvoptions['port'], $errno, $errstr, $bwpvoptions['timeout'] );
 
 			if ( $sock ) {
 				
-				fwrite( $sock, $out );
-				$result = fread( $sock, 256 );
-				fclose( $sock );
+				@fwrite( $sock, $out );
+				$result = @fread( $sock, 256 );
+				@fclose( $sock );
 
 			}
 
