@@ -1,15 +1,15 @@
 <?php
 /*
 	Plugin Name: Better WP Varnish
-	Plugin URI: http://bit51.com/software/better-wp-varnish/
+	Plugin URI: http://wordpress.org/plugins/better-wp-varnish/
 	Description: A better solution for clearing Varnish cache with WordPress
-	Version: 1.0
+	Version: 1.0.1
 	Text Domain: better-wp-varnish
 	Domain Path: /languages
-	Author: Bit51
-	Author URI: http://bit51.com
+	Author: iThemes
+	Author URI: http://ithemes.com
 	License: GPLv2
-	Copyright 2012 - 2013 Bit51.com (email: info@bit51.com)
+	Copyright 2014  iThemes  (email : updates@ithemes.com)
 */
 
 
@@ -26,7 +26,7 @@ if ( ! class_exists( 'bit51_bwpv' )) {
 		public $hook 			= 'better-wp-varnish';
 		public $pluginbase		= 'better-wp-varnish/better-wp-varnish.php';
 		public $pluginname		= 'Better WP Varnish';
-		public $homepage		= 'http://bit51.com/software/share-center-pro/';
+		public $homepage		= 'http://wordpress.org/plugins/better-wp-varnish/';
 		public $supportpage 	= 'http://wordpress.org/support/plugin/better-wp-varnish';
 		public $wppage 			= 'http://wordpress.org/extend/plugins/better-wp-varnish/';
 		public $accesslvl		= 'manage_options';
